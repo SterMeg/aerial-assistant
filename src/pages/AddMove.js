@@ -1,4 +1,5 @@
-import React, { Component, Fragment } from "react";
+import React, { useState } from "react";
+import { useInput } from "../components/hooks/input-hook"
 import axios from "axios";
 import styled from 'styled-components';
 import Autocomplete from '../components/Autocomplete'
@@ -12,88 +13,61 @@ const AddWrapper = styled.form`
     }
 `
 
-class AddMove extends Component {
-    state = {
-        name: '',
-        notes: '',
-        chosenSuggestions: []
-    }
-    handleChange = e => {
-        this.setState({ [e.target.name]: e.target.value });
-    }
-    handleSubmit = async e => {
-        e.preventDefault();
-        const { name, notes, chosenSuggestions } = this.state;
-        const entrance = chosenSuggestions.map(suggestion => suggestion.id);
+function AddMove(props) {
+    const { value:name, bind:bindName, reset:resetName} = useInput('');
+    const { value: notes, bind: bindNotes, reset: resetNotes } = useInput('');
+    const [ entrances, setEntrances ] = useState([]);
 
-        const { id } = this.props.match.params;
+    const handleSubmit = async e => {
+        e.preventDefault();
+
+        const entranceIds = entrances.map(entrance => entrance.id);
+
+        const { id } = props.match.params;
         try {
             const res = await axios.post("/move", {
-                name, notes, category: id, entrance
+                name, notes, category: id, entranceIds
             })
         } catch (e) {
             console.error(e)
         }
-        this.setState({
-            name: '',
-            notes: ''
-        });
+        resetName();
+        resetNotes();
     }
-    addEntrance = entrance => {
-        this.setState(state => {
-            const chosenSuggestions = [...state.chosenSuggestions, entrance];
-
-            return {
-                chosenSuggestions
-            }
-        })
+    const addEntrance = entrance => {
+        setEntrances(entrances => [...entrances, entrance]);
     }
-    render() {
-        const {
-            handleChange,
-            state: {
-                name,
-                notes,
-                chosenSuggestions
-            },
-            props   
-        } = this;
-        return (
-            <AddWrapper onSubmit={this.handleSubmit} autoComplete="off">
-                <label htmlFor="name">Name:</label>
+    return (
+        <AddWrapper onSubmit={handleSubmit} autoComplete="off">
+            <label>
+                Move Name:    
                 <input
                     type="text"
                     autoComplete="off"
-                    onChange={this.handleChange}
-                    name="name"
-                    id="name"
-                    placeholder="name"
-                    value={name}
+                    {...bindName}
                 />
-                <label htmlFor="autocomplete">Enter from:</label>
-                {chosenSuggestions.length > 0 && chosenSuggestions.map(suggestion => {
-                    return  (
-                        <li key={suggestion.id}>
-                            {suggestion.name}
-                        </li>
-                    )
-                })}
-                <Autocomplete
-                    suggestions={props.location.state.moves}
-                    addEntrance={this.addEntrance}
-                />
-                <label htmlFor="notes">Notes:</label>
+            </label>
+            <label htmlFor="autocomplete">Enter from:</label>
+            {entrances.length > 0 && entrances.map(suggestion => {
+                return  (
+                    <li key={suggestion.id}>
+                        {suggestion.name}
+                    </li>
+                )
+            })}
+            <Autocomplete
+                suggestions={props.location.state.moves}
+                addEntrance={addEntrance}
+            />
+            <label>
+                Notes:   
                 <textarea
-                    onChange={this.handleChange}
-                    name="notes"
-                    id="notes"
-                    placeholder="notes"
-                    value={notes}
+                    {...bindNotes}
                 />
-                <input type="submit" value="Add Move" />
-            </AddWrapper>
-        )
-    }
+            </label>
+            <input type="submit" value="Add Move" />
+        </AddWrapper>
+    )
 }
 
 export default AddMove;

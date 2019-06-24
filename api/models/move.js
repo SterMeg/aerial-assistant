@@ -11,7 +11,7 @@ const moveSchema = new Schema({
         type: Date,
         default: new Date()
     },
-    entrance: {
+    entranceIds: {
         type: Array
     },
     notes: {

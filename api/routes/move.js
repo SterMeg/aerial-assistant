@@ -18,8 +18,8 @@ router.get('/', (req, res) => {
 })
 
 router.post('/', (req, res) => {
-    const { name, category, notes, entrance } = req.body;
-    const move = new Move({ name, category, notes, entrance })
+    const { name, category, notes, entranceIds } = req.body;
+    const move = new Move({ name, category, notes, entranceIds })
     move
         .save()
         .then(doc => {
