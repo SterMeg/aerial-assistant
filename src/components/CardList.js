@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from "react";
 import axios from "axios";
 import styled from 'styled-components';
-import Autocomplete from './Autocomplete'
+import { Link } from 'react-router-dom';
 
 const CardGrid = styled.ul`
     display: grid;
@@ -24,9 +24,7 @@ const CardGrid = styled.ul`
 
 class CardList extends Component {
     state = {
-        moves: [],
-        name: '',
-        notes: ''
+        moves: []
     }
     componentDidMount() {
         this.getMoves();
@@ -44,26 +42,6 @@ class CardList extends Component {
             console.log(e)
         }
     }
-    handleChange = e => {
-        this.setState({ [e.target.name]: e.target.value });
-    }
-    handleSubmit = async e => {
-        e.preventDefault();
-        const { name, notes } = this.state;
-        const { id } = this.props.match.params;
-        try {
-            const res = await axios.post("/move", {
-                name, notes, category: id, entrance: ["5d0d90583177383423750a2d", "5d0d910d3177383423750a2f"] 
-            })
-            this.getMoves();
-        } catch (e) {
-            console.error(e)
-        }
-        this.setState({ 
-            name: '' ,
-            notes: ''
-        });
-    }
     render() {
         const { name, notes } = this.state;
         return (
@@ -75,28 +53,23 @@ class CardList extends Component {
                             <p>{move.notes}</p>
                         </li>
                     })}
+                    <li>
+                    <Link
+                        to={{
+                            pathname: `/moves/${this.props.match.params.id}/add`,
+                            state: {
+                                moves: this.state.moves.map(move => {
+                                    return {
+                                        name: move.name,
+                                        id: move._id
+                                    }
+                                })
+                            }
+                        }}
+                    >
+                        Add new move
+                    </Link></li>
                 </CardGrid>
-                <form onSubmit={this.handleSubmit}>
-                    <label htmlFor="name">Name:</label>
-                    <input 
-                        type="text"
-                        onChange={this.handleChange}
-                        name="name"
-                        id="name"
-                        placeholder="name"
-                        value={name}
-                    />
-                    <Autocomplete suggestions={['Gemini', 'Helicopter Invert', 'Scorpio']}/>
-                    <label htmlFor="notes">Notes:</label>
-                    <textarea
-                        onChange={this.handleChange}
-                        name="notes"
-                        id="notes"
-                        placeholder="notes"
-                        value={notes}
-                    />
-                    <input type="submit" value="Add Move"/>
-                </form>
             </Fragment>
         )
     }

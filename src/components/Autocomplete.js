@@ -7,8 +7,53 @@ class Autocomplete extends Component {
         showSuggestions: false,
         userInput: ''
     }
-    handleChange = e => {
-        this.setState({ [e.target.name]: e.target.value });
+    onChange = e => {
+        const { suggestions } = this.props;
+        const userInput = e.currentTarget.value;
+
+        const filteredSuggestions = suggestions.filter(
+            (suggestion) => 
+                suggestion.name.toLowerCase().indexOf(userInput.toLowerCase()) > -1
+        )
+
+        this.setState({
+            activeSuggestion: 0,
+            filteredSuggestions,
+            showSuggestions: true,
+            userInput: e.currentTarget.value
+        })
+    }
+    onClick = suggestion => {
+        this.props.addEntrance(suggestion);
+        this.setState({
+            activeSuggestion: 0,
+            filteredSuggestions: [],
+            showSuggestions: false,
+            userInput:''
+        })
+    }
+    onKeyDown = e => {
+        const { activeSuggestion, filteredSuggestions } = this.state;
+
+        if (e.keyCode === 13) {
+            this.setState({
+                activeSuggestion: 0,
+                showSuggestions: false,
+                userInput: filteredSuggestions[activeSuggestion]
+            })
+        } else if (e.keyCode === 38) {
+            if (activeSuggestion === 0) {
+                return;
+            }
+
+            this.setState({ activeSuggestion: activeSuggestion - 1});
+        } else if (e.keyCode === 40) {
+            if (activeSuggestion - 1 === filteredSuggestions.length) {
+                return;
+            }
+
+            this.setState({ activeSuggestion: activeSuggestion + 1})
+        }
     }
     render() {
         const {
@@ -22,19 +67,19 @@ class Autocomplete extends Component {
                 userInput
             }
         } = this;
-        
+
         let suggestionsListComponent;
             if (showSuggestions && userInput) {
                 if (filteredSuggestions.length) {
                     suggestionsListComponent = (
-                        <ul class="suggestions">
+                        <ul className="suggestions">
                             {filteredSuggestions.map((suggestion, index) => {
                                 return (
                                     <li 
-                                        key={suggestion}
-                                        onClick={onClick}
+                                        key={suggestion.id}
+                                        onClick={() => onClick(suggestion)}
                                     >   
-                                        {suggestion}
+                                        {suggestion.name}
                                     </li>
                                 )
                             })}
@@ -42,7 +87,7 @@ class Autocomplete extends Component {
                     )
                 } else {
                     suggestionsListComponent = (
-                        <p class="no-suggestions">
+                        <p className="no-suggestions">
                             No suggestions.
                         </p>
                     )
@@ -51,6 +96,9 @@ class Autocomplete extends Component {
         return (
             <Fragment>
                 <input 
+                    autoComplete="off"
+                    name="autocomplete"
+                    id="autocomplete"
                     type="text"
                     onChange={onChange}
                     onKeyDown={onKeyDown}

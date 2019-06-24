@@ -14,6 +14,7 @@ import styled, { createGlobalStyle } from 'styled-components';
 import axios from "axios";
 import CardList from "./components/CardList";
 import Header from "./components/Header";
+import AddMove from "./pages/AddMove";
 
 const GlobalStyles = createGlobalStyle`
   html {
@@ -117,8 +118,14 @@ class App extends Component {
                 }
               />
               <Route
+                exact
                 path="/moves/:id"
                 component={CardList}>
+              </Route>
+              <Route
+                exact
+                path="/moves/:id/add"
+                component={AddMove}>
               </Route>
               {/* <Route
                 path="/move/:id"
