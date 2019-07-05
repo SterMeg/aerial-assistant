@@ -1,53 +1,49 @@
-import React, { Component } from "react";
+import React from "react";
+import { useInput } from "./hooks/input-hook";
 import axios from "axios";
 
-class Signup extends Component {
-    state = {
-        email: "",
-        password: ""
-    };
-    handleChange = e => {
-        this.setState({ [e.target.name]: e.target.value });
+function Signup() {
+  const { value: email, bind: bindEmail, reset: resetEmail } = useInput("");
+  const {
+    value: password,
+    bind: bindPassword,
+    reset: resetPassword
+  } = useInput("");
+
+  const handleSubmit = async e => {
+    e.preventDefault();
+    try {
+      const res = await axios.post("/auth/signup", { email, password });
+      this.props.setUser(res.data);
+    } catch (e) {
+      console.error(e);
     }
-    handleSubmit = async e => {
-        e.preventDefault();
-        const { email, password } = this.state;
-        try {
-            const res = await axios.post("/auth/signup", { email, password })
-            this.props.setUser(res.data);
-        } catch (e) {
-            console.error(e)
-        }
-    }
-    render() {
-        return (
-            <form onSubmit={this.handleSubmit}>
-                <div>
-                    <label htmlFor="email">Email: </label>
-                    <input
-                        type="email"
-                        onChange={this.handleChange}
-                        name="email"
-                        id="email"
-                        placeholder="email"
-                    />
-                </div>
-                <div>
-                    <label htmlFor="email">Password: </label>
-                    <input
-                        type="password"
-                        onChange={this.handleChange}
-                        name="password"
-                        id="password"
-                        placeholder="Enter your desired password"
-                    />
-                </div>
-                <div>
-                    <input type="submit" value="Signup" />
-                </div>
-            </form>
-        );
-    }
+    resetEmail();
+    resetPassword();
+  };
+  return (
+    <form onSubmit={handleSubmit}>
+      <div>
+        <label>
+          Email:
+          <input type="email" {...bindEmail} />
+        </label>
+      </div>
+      <div>
+        <label>
+          Password:
+          <input
+            type="password"
+            placeholder="Enter your desired password"
+            {...bindPassword}
+          />
+        </label>
+      </div>
+      <div>
+        <input type="submit" value="Signup" />
+      </div>
+    </form>
+  );
 }
 
 export default Signup;

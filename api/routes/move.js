@@ -33,4 +33,32 @@ router.post('/', (req, res) => {
         })
 })
 
+router.get('/:id', async (req, res, next) => {
+    const { id } = req.params;
+
+    try {
+        const doc = await
+        Move.findById(id)
+        res.status(200).send({
+            data: [doc]
+        })
+    } catch(e) {
+        next(e)
+    }
+})
+
+router.get('/entrances', async (req, res, next) => {
+    console.log(req.query);
+    // const { entrances } = req.query;
+
+    // try {
+    //     const doc = await Move.find({ _id: {$in: entrances }})
+    //     res.status(200).send({
+    //         data: [doc]
+    //     })
+    // } catch (e) {
+    //     next(e)
+    // }
+})
+
 module.exports = router

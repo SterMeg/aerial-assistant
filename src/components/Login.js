@@ -1,19 +1,18 @@
-import React, { Component } from "react";
+import React from "react";
+import { useInput } from "./hooks/input-hook"
 import axios from "axios";
 import { setToken } from "../services/tokenService";
 
-class Login extends Component {
-    state = {
-        email: '',
-        password: ''
-    };
-    handleChange = e => {
-        this.setState({ [e.target.name]: e.target.value })
-    };
-    handleSubmit = async e => {
-        console.log('submit')
+function Login() {
+    const { value: email, bind: bindEmail, reset: resetEmail } = useInput("");
+    const {
+        value: password,
+        bind: bindPassword,
+        reset: resetPassword
+    } = useInput("");
+
+    const handleSubmit = async e => {
         e.preventDefault();
-        const { email, password } = this.state
         try {
             const res = await axios.post('/auth/login', { email, password})
             const token = res.data.token
@@ -22,36 +21,36 @@ class Login extends Component {
         } catch (e) {
             console.error(e)
         }
+        resetEmail();
+        resetPassword();
     };
-    render() {
-        return (
-            <form onSubmit={this.handleSubmit}>
-                <div>
-                    <label htmlFor="login-email">Email: </label>
-                    <input
-                        type="email"
-                        onChange={this.handleChange}
-                        name="email"
-                        id="login-email"
-                        placeholder="email"
-                    />
-                </div>
-                <div>
-                    <label htmlFor="login-password">Password: </label>
-                    <input
-                        type="password"
-                        onChange={this.handleChange}
-                        name="password"
-                        id="login-password"
-                        placeholder="Enter your desired password"
-                    />
-                </div>
-                <div>
-                    <input type="submit" value="Log In" />
-                </div>
-            </form>
-        );
-    }
+    return (
+        <form onSubmit={handleSubmit}>
+            <div>
+                <label htmlFor="login-email">Email: </label>
+                <input
+                    type="email"
+                    name="email"
+                    id="login-email"
+                    placeholder="email"
+                    {...bindEmail}
+                />
+            </div>
+            <div>
+                <label htmlFor="login-password">Password: </label>
+                <input
+                    type="password"
+                    name="password"
+                    id="login-password"
+                    placeholder="Enter your desired password"
+                    {...bindPassword}
+                />
+            </div>
+            <div>
+                <input type="submit" value="Log In" />
+            </div>
+        </form>
+    );
 }
 
 export default Login;

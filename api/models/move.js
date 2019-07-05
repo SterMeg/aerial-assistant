@@ -11,9 +11,9 @@ const moveSchema = new Schema({
         type: Date,
         default: new Date()
     },
-    entranceIds: {
-        type: Array
-    },
+    entranceIds: [
+        { type: mongoose.Schema.ObjectId, ref: 'move' }
+    ],
     notes: {
         type: String
     }
